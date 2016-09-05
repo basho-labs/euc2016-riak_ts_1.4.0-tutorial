@@ -305,6 +305,8 @@ Here the **partition key** is `(id, QUANTUM(time, 365, 'd'))`. All data whose ti
 
 And the **local key** is `id, time`.
 
+**NOTE**: the key fields must be `NOT NULL`.
+
 ---
 
 Creating tables - choosing your keys
@@ -312,7 +314,7 @@ Creating tables - choosing your keys
 
 To protect the cluster from over-heavy queries the number of quanta's that a query spans is limited (the default is 5 - but you can configure this).
 
-The max memory that a query will require is `no of rows per quanta` * `avg size of row` * `max no of quantas`.
+The max memory that a query will require is `no-of-rows-per-quanta` times `avg-size-of-row` times `max-no-of-quantas`.
 
 We are using a quantum of 365 days here because it makes the queries easier to type - and the tutorial more pleasant.
 
@@ -338,11 +340,16 @@ CREATE TABLE Exercise2
 ```
 Then use the shell commands `SHOW TABLES;` and `DESCRIBE Exercise2;` to examine it.
 
-(or if you have used vagrant run `replay_log "/home/vagrant/tutorial/exercise2.sql";` - you will need to use a different path if you have installed from source.)
+if you have used vagrant run 
+```sql
+replay_log "/home/vagrant/tutorial/exercise2.sql";
+```
+
+(you will need to use a different path if you have installed from source.)
 
 ---
 
-Exercise 2b `INSERT` Data
+Exercise 2b `INSERT` data
 -------------------------
 
 There are two ways to insert data:
@@ -357,11 +364,9 @@ INSERT INTO Exercise2 (id, time, temperature) VALUES (123, '2016-01-01', 4.5);
 INSERT INTO Exercise2 VALUES (124, '2016-01-01', 8.5);
 ```
 
-If you wish to not specify optional data you **must** use the explicit form.
-
 ---
 
-Exercise 2c `SELECT` Data
+Exercise 2c `SELECT` data
 -------------------------
 
 ```sql
@@ -381,7 +386,11 @@ You should see:
 
 ---
 
-Time Handling
+**Short prezzo on Riak TS quantas and data access paths**
+
+---
+
+Time handling
 -------------
 
 Under the covers riak TS uses microseconds since the epoch for its timestamps.
@@ -406,3 +415,149 @@ INSERT INTO Exercise2 (id, time, temperature) VALUES (123, 1451606400000, 4.5)
 
 You can find more details here:
 http://docs.basho.com/riak/ts/1.4.0/using/timerepresentations/
+
+---
+
+Arithmetic operations
+---------------------
+
+You can perform a limited number of arithmetic operators on the data you return:
+* `+`
+* `-` (and negation)
+* `*`
+* `/`
+* `(` and `)`
+
+All of these can modify a single column at a time. 
+
+---
+
+Aggregation operations
+----------------------
+
+In addition you can summarise and roll up data using aggregation functions in riak TS.
+
+The aggregation functions supported are:
+
+* `COUNT`
+* `SUM`
+* `MEAN` or `AVG`
+* `MIN`
+* `MAX`
+* `STDDEV` or `STDDEV_SAMP`
+* `STDDEV_POP`
+
+---
+
+Using `GROUP BY` functionality
+------------------------------
+
+We can also use a `GROUP BY` clause with aggregation functions to perform analysis of the data that we return.
+
+Details of the `GROUP BY` clause can be found here:
+http://docs.basho.com/riak/ts/1.4.0/using/querying/select/group-by
+
+Pay particular attention to the discussion of using `GROUP BY` on keyfields.
+
+---
+
+Exercise 3a - load data
+-----------------------
+
+Load up the exercise data in riak shell by using the replay log functionality:
+```sql
+replay_log "/home/vagrant/tutorial/exercise3.sql";
+```
+
+Examine the structure of the table using `SHOW TABLES;` and then `DESCRIBE sometablename;`.
+
+See the data with the following 2 select queries:
+```sql
+SELECT * FROM Exercise3 WHERE id = 1 AND time >= '2015' AND time <= '2017';
+SELECT * FROM Exercise3 WHERE id = 2 AND time >= '2015' AND time <= '2017';
+```
+
+Discuss the key structure.
+
+---
+
+The data for Exercise 3
+-----------------------
+
+```sql
+CREATE TABLE Exercise3( id SINT64 NOT NULL, time TIMESTAMP NOT NULL, place VARCHAR NOT NULL, temperature DOUBLE, pressure DOUBLE, atsealevel BOOLEAN, PRIMARY KEY ( (id, QUANTUM(time, 365, 'd')), id, time, place ));
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-01-01', "Linlithgow", 5.2, 1.01, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-02-01', "Linlithgow", 6.4, 1.02, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-03-01', "Linlithgow", 11.4, 1.15, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-03-09', "Linlithgow", 16.2, 0.98, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-04-15', "Linlithgow", 14.5, 1.0, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-01-02', "Bo'ness", 5.1, 1.02, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-02-01', "Bo'ness", 6.6, 1.07, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-03-01', "Bo'ness", 10.2, 1.13, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-03-07', "Bo'ness", 16.5, 0.99, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-04-15', "Bo'ness", 14.0, 1.01, true);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (2, '2016-02-14', " Slamannan", 9.6, 1.0, false);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (2, '2016-02-28', " Slamannan", 10.2, 1.03, false);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (2, '2016-03-11', " Slamannan", 16.3, 0.92, false);
+INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (2, '2016-04-03', " Slamannan", 18.0, 0.99, false);
+```
+
+---
+
+Exercise 3b Arithmetic
+----------------------
+
+Convert the pressure values from **bar** to **lb/sq inch**:
+```sql
+SELECT id, place, 14.5 * pressure FROM Exercise3 WHERE id = 1 AND time >= '2015' AND time <= '2017';
+``` 
+
+Read about the limitations and options of arithmetic here and have a go yourself:
+http://docs.basho.com/riak/ts/1.4.0/using/querying/select/arithmetic-operations/
+
+Now run some more arithmetic operations on the example data.
+
+---
+
+Exercise 3c Aggregation
+-----------------------
+
+Aggregation functions are used in the `SELECT` clause of a SQL statement:
+```sql
+SELECT COUNT(id) from Exercise3 WHERE id = 1 and time >= '2015' and time <= '2017';
+```
+
+Read about the limitations and options of using aggregation functions here:
+http://docs.basho.com/riak/ts/1.4.0/using/querying/select/aggregate-functions/
+
+Now run some more aggregration functions on the data
+
+---
+
+Exercise 3d `GROUP BY`
+----------------------
+
+```sql
+SELECT place, AVG(temperature) FROM Exercise3 WHERE id = 1 AND time >= '2015' AND time <= '2017' GROUP BY place;
+```
+
+Read about the limitations and options of using `GROUP BY` here:
+http://docs.basho.com/riak/ts/1.4.0/using/querying/select/group-by/
+
+Pay particular attention to the data modeling aspects.
+
+---
+
+Final exercise
+--------------
+
+Design a data model for a personal use case. Things to consider are:
+* what fields are in the partition and local keys
+   * are they the same?
+* what functions will you use?
+* do you need to group results?
+* how will the data hotspot?
+
+---
+
+FIN
