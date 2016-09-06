@@ -260,7 +260,7 @@ CREATE TABLE Exercise2
 ...
 ```
 
-The table has to have a name - at the moment tables can be deleted so be careful with the names you choose!
+The table has to have a name - at the moment tables **CANNOT** be deleted so be careful with the names you choose!
 
 ---
 
@@ -284,7 +284,7 @@ The valid types are:
 * `VARCHAR`
 * `TIMESTAMP`
 
-Timestamps are microseconds since the Unix Epoch - 1st Jan 1970.
+Timestamps are milliseconds since the Unix Epoch - 1st Jan 1970.
 
 ---
 
@@ -484,6 +484,8 @@ Discuss the key structure.
 The data for Exercise 3
 -----------------------
 
+This is the data that has been inserted (for reference only).
+
 ```sql
 CREATE TABLE Exercise3( id SINT64 NOT NULL, time TIMESTAMP NOT NULL, place VARCHAR NOT NULL, temperature DOUBLE, pressure DOUBLE, atsealevel BOOLEAN, PRIMARY KEY ( (id, QUANTUM(time, 365, 'd')), id, time, place ));
 INSERT INTO Exercise3 (id, time, place, temperature, pressure, atsealevel) VALUES (1, '2016-01-01', "Linlithgow", 5.2, 1.01, true);
@@ -547,6 +549,23 @@ http://docs.basho.com/riak/ts/1.4.0/using/querying/select/group-by/
 Pay particular attention to the data modeling aspects.
 
 ---
+
+Exercise 4 - non-time quantised keys
+------------------------------------
+
+Load the data by running:
+```sql
+replay_log "/home/vagrant/tutorial/exercise4.sql";
+```
+
+Examine the table structure using `SHOW TABLES` and `DESCRIBE Exercise4`.
+
+Run the SQL:
+```sql
+SELECT * FROM Exercise5 WHERE firstname = 'Alice' AND lastname = 'Anderson';
+```
+
+**Discussion Question**: think about what could go wrong with a data model based on unquantised data.
 
 Final exercise
 --------------
