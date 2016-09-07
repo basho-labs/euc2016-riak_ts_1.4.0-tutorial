@@ -393,7 +393,7 @@ You should see:
 Time handling
 -------------
 
-Under the covers riak TS uses microseconds since the epoch for its timestamps.
+Under the covers riak TS uses milliseconds since the epoch for its timestamps.
 
 If you try and use a time < 0 you will get an error:
 ```sql
@@ -405,7 +405,7 @@ riak-shell(9)>INSERT INTO Exercise2 VALUES (124, '1971-01-01', 8.5);
 riak-shell(10)>
 ```
 
-As well as specifying data in [ISO-8601](http://docs.basho.com/riak/ts/1.4.0/using/timerepresentations/#iso-8601-guidelines) format you can use plain microseconds since the epoch. 
+As well as specifying data in [ISO-8601](http://docs.basho.com/riak/ts/1.4.0/using/timerepresentations/#iso-8601-guidelines) format you can use plain milliseconds since the epoch. 
 
 These two statements are equivalent:
 ```sql
