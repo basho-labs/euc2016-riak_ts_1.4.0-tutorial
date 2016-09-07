@@ -370,7 +370,7 @@ Exercise 2c `SELECT` data
 -------------------------
 
 ```sql
-SELECT * FROM Exercise WHERE id=123 AND time >= '2015' AND time =< '2017';
+SELECT * FROM Exercise2 WHERE id=123 AND time >= '2015' AND time <= '2017';
 ```
 
 You should see:
@@ -562,7 +562,7 @@ Examine the table structure using `SHOW TABLES` and `DESCRIBE Exercise4`.
 
 Run the SQL:
 ```sql
-SELECT * FROM Exercise5 WHERE firstname = 'Alice' AND lastname = 'Anderson';
+SELECT * FROM Exercise4 WHERE firstname = 'Alice' AND lastname = 'Anderson';
 ```
 
 **Discussion Question**: think about what could go wrong with a data model based on unquantised data.
